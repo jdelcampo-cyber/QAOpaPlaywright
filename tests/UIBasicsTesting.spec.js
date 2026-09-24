@@ -3,7 +3,8 @@ const { request } = require('node:http');
 
 
 test('@Web Browser Context Playwright test', async ({ browser }) => {
-
+//UIBasics tests
+//hellowword
     const context = await browser.newContext();
     const page = await context.newPage();
   //  page.route("**/*.{jpg,png,jpeg}", route => route.abort()); // **/* means any urls regardless of UI (omages, pages,forms)
