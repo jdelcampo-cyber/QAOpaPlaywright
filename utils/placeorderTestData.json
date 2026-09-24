@@ -1,0 +1,27 @@
+[
+
+    { 
+    "username" : "junny@gmail.com",
+    "password" : "Learn@123",
+    "productName" : "ZARA COAT 3",
+    "cardNumber" : "4423772671013078",
+    "monthdate" : "11",
+    "daydate" : "24",
+    "cardexpiry" : "345",
+    "cardHolder" : "Jun del Campo",
+    "couponcode" : "rahulshettyacademy"
+    },
+
+    { 
+    "username" : "dfa@gmail.com",
+    "password" : "Learn@123",
+    "productName" : "ADIDAS ORIGINAL",
+    "cardNumber" : "4423772671013112",
+    "monthdate" : "10",
+    "daydate" : "11",
+    "cardexpiry" : "345",
+    "cardHolder" : "Junny del Campo",
+    "couponcode" : "rahulshettyacademy"
+    }
+
+]

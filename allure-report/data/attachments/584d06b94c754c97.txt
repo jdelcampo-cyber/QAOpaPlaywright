@@ -1,0 +1,9 @@
+Toaster message:  Login Successfully 
+[ 'ADIDAS ORIGINAL', 'ZARA COAT 3', 'iphone 13 pro' ]
+Toaster message:  Product Added To Cart 
+[ 'Credit CardPaypalSEPAInvoice' ]
+[ '' ]
+* Coupon Applied
+
+Toaster message:  Order Placed Successfully 
+ | 6ab095512be7a4bc2b5e4e81 | 

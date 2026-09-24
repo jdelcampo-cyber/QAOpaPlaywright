@@ -1,0 +1,6 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","10261","@Web Cliont App Playwright test assignment ADIDAS ORIGINAL","","2026-09-21","passed","2026-09-21","","ClientAppPO.spec.js","",""
+"","11329","@Web Cliont App Playwright test assignment ZARA COAT 3","","2026-09-21","passed","2026-09-21","","ClientAppPO.spec.js","",""
+"","8481","@Web Browser Context Playwright test","","2026-09-21","passed","2026-09-21","","UIBasicsTesting.spec.js","",""
+"","16607","@Web Popup Validations","","2026-09-21","failed","2026-09-21","","MoreValidations.spec.js","",""
+"","3993","@Web UI controls","","2026-09-21","passed","2026-09-21","","UIBasicsTesting.spec.js","",""
