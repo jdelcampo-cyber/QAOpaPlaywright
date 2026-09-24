@@ -24,3 +24,25 @@ az role assignment create \
 --assignee "52380a9d-78eb-40f7-b84c-e3893c3f19eb" \
 --role “Storage Blob Data Contributor” \
 --scope “$(az storage account show —-name "pwstrgrrde8d9"  —-resource-group "rrd"   —-query id -o tsv)”  
+
+az role assignment create \ 
+--assignee "$(az ad sp list --display-name 'github-playwright' --query '[0].appId' -o tsv)" \
+--role “Storage Blob Data Contributor” \
+--scope “$(az storage account show —-name "pwstrgrrde8d9"  —-resource-group "rrd"   —-query id -o tsv)”  
+
+az ad sp create-for-rbac \ 
+--name "github-playwright" \ 
+--role "Contributor" \ 
+--scopes "/subscriptions/0349e49e-1efc-412e-91cb-b57eb93dc604/resourceGroups/rrd" \ 
+--json-auth
+
+az ad sp create-for-rbac \
+--name "github-playwright" \
+--role "Contributor" \
+--scopes "/subscriptions/0349e49e-1efc-412e-91cb-b57eb93dc604/resourceGroups/rrd" \
+--json-auth
+
+az role assignment create --assignee "$(az ad sp list --display-name 'github-playwright' --query '[0].appId' -o tsv)" --role "Storage Blob Data Contributor" --scope “$(az storage account show --name "pwstrgrrde8d9" --resource-group "rrd" --query id -o tsv)”  
+
+
+az ad sp create-for-rbac --name "github-playwright" --role Contributor --scopes "/subscriptions/0349e49e-1efc-412e-91cb-b57eb93dc604/resourceGroups/rrd" --json-auth
