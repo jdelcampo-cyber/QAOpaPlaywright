@@ -6,7 +6,7 @@ class APIUtils {
     }
     async getToken() //login API = create mew method
     {
-       const loginResponse = await this.apiContext.post('https://api.eventhub.rahulshettyacademy.com/api/auth/login',
+       const loginResponse = await this.apiContext.post('https://rahulshettyacademy.com/api/ecom/auth/login',
             {
                 data: this.loginPayload,
                 headers: {
@@ -16,9 +16,29 @@ class APIUtils {
             }); //200, 201
         const loginResponseJson = await loginResponse.json();
         console.log("Login API Response:", loginResponseJson);
-          if (!loginResponseJson.token) {
-    throw new Error(`Login failed: ${JSON.stringify(loginResponseJson)}`);
-  }
+        if (!loginResponseJson.token) {
+            throw new Error(`Login failed: ${JSON.stringify(loginResponseJson)}`);
+        }
+        return loginResponseJson.token;
+    }
+
+    async getEventHubToken() {
+        const loginResponse = await this.apiContext.post('https://api.eventhub.rahulshettyacademy.com/api/auth/login',
+            {
+                data: {
+                    email: this.loginPayload.userEmail ?? this.loginPayload.email,
+                    password: this.loginPayload.userPassword ?? this.loginPayload.password,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+            });
+        const loginResponseJson = await loginResponse.json();
+        console.log("EventHub Login API Response:", loginResponseJson);
+        if (!loginResponseJson.token) {
+            throw new Error(`EventHub login failed: ${JSON.stringify(loginResponseJson)}`);
+        }
         return loginResponseJson.token;
     }
 
@@ -43,9 +63,9 @@ class APIUtils {
     async createOrder(orderPayload) //createorder API = create mew method
     {
         let response = {};  // create new object
-        response.token  = await this.getToken();
-        if (!token) {
-            throw new Error("Login failed: token is undefined");
+        response.token = await this.getEventHubToken();
+        if (!response.token) {
+            throw new Error('Login failed: token is undefined');
         }
         const orderResponse = await this.apiContext.post('https://rahulshettyacademy.com/api/ecom/order/create-order',
             {
@@ -71,7 +91,7 @@ class APIUtils {
     async createEvent(eventPayload) //createorder API = create mew method
     {
         let response = {};  // create new object
-        response.token = await this.getToken();
+        response.token = await this.getEventHubToken();
         const eventResponse = await this.apiContext.post('https://api.eventhub.rahulshettyacademy.com/api/events',
             {
                 data: eventPayload,
@@ -89,7 +109,7 @@ class APIUtils {
     async createBooking(bookingPayload) //createorder API = create mew method
     {
         let response = {};  // create new object
-        response.token = await this.getToken();
+        response.token = await this.getEventHubToken();
         const bookResponse = await this.apiContext.post('https://api.eventhub.rahulshettyacademy.com/api/bookings',
             {
                 data: bookingPayload,

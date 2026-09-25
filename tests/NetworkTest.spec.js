@@ -6,11 +6,11 @@ const fakePayloadOrders = {data:[],message:"No Orders"};
 
 let response;
 // tests to be performed before all the tests in this file
-test.beforeAll(async ()=> 
-{
-    const apiContext = await request.newContext(); 
-    const apiUtils = new APIUtils(apiContext,newloginPayload);
-    response = await apiUtils.createOrder(orderPayload);
+test.beforeAll(async () => {
+    const apiContext = await request.newContext();
+    const apiUtils = new APIUtils(apiContext, newloginPayload);
+    response = { token: await apiUtils.getToken() };
+    await apiContext.dispose();
 });
 
 test('Place order', async ({page})=>
@@ -26,7 +26,7 @@ test('Place order', async ({page})=>
        const newResponse = await page.request.fetch(route.request());
        route.fulfill(
         {
-            newResponse,
+            response: newResponse,
             body: JSON.stringify(fakePayloadOrders),
         });
         //intercepting response - API response->{playwright fake response}->browser->render data on front end
@@ -38,7 +38,5 @@ test('Place order', async ({page})=>
     //order list
     await order.click();
     await page.waitForResponse("https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*");
-    console.log(await page.locator('.mt-4').textContent());
-   
-   
+    await expect(page.locator('.mt-4')).toContainText('No Orders');
 });

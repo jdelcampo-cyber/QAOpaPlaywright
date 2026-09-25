@@ -3,6 +3,7 @@ const {test, expect, selectors} = require('@playwright/test');
 
 test('Cliont App Playwright test assignment', async ({page})=>
 {
+  const registrationEmail = `junny${Date.now()}@gmail.com`;
 
     await page.goto("https://rahulshettyacademy.com/client/#/");
     console.log(await page.title());
@@ -23,8 +24,9 @@ test('Cliont App Playwright test assignment', async ({page})=>
     const loginLink = page.getByText("Login here");
     const toasterMsg = page.locator('#toast-container');
     const successMsg = page.getByText("Account Created Successfully");
-    const loginBtn = page.getByRole("button");
     const login = page.locator('#login');
+    const loginEmail = page.locator('#userEmail');
+    const loginPassword = page.locator('#userPassword');
     const regBtn = page.getByRole("button",{name:'Register'});
 
     //product list
@@ -122,7 +124,7 @@ test('Cliont App Playwright test assignment', async ({page})=>
 
     //successful registration
     await Email.fill("");
-    await Email.fill("junny149@gmail.com");
+    await Email.fill(registrationEmail);
     await Password.fill("");
     await Password.fill("Learn@123");
     await conFirm.fill("");
@@ -134,12 +136,12 @@ test('Cliont App Playwright test assignment', async ({page})=>
     const msg4 = await toasterMsg.textContent();
     console.log('Toaster message:', msg4);
 
-    //console.log(await successMsg.textContent());
-    await loginBtn.click();
-
     //login
-    await Email.type("junny149@gmail.com");
-    await Password.fill("Learn@123");
+    await expect(successMsg).toBeVisible();
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(loginEmail).toBeVisible();
+    await loginEmail.fill(registrationEmail);
+    await loginPassword.fill("Learn@123");
     await login.click();
 
    // await expect(toasterMsg).toContainText("Login");
@@ -149,11 +151,9 @@ test('Cliont App Playwright test assignment', async ({page})=>
    
     // check list
     await page.waitForLoadState('networkidle');
-   // await cardTitles.first().waitFor();
+    await expect(products.first()).toBeVisible();
     const allTitles = await cardTitles.allTextContents();
     console.log(allTitles);
-
-   // await expect(products.first()).toBeVisible();
 
     await products.filter({hasText: "ZARA COAT 3"}).getByRole("button", {name: " Add To Cart"}).click();
 
@@ -192,7 +192,7 @@ test('Cliont App Playwright test assignment', async ({page})=>
     console.log(await page.locator("[style='color: green;']").textContent());
 
     //shipping information
-    expect(emailField.first()).toHaveText("junny@gmail.com");
+    await expect(emailField.first()).toHaveText(registrationEmail);
     await emailField.last().fill(" ");
     await orderBtn.click();
 
@@ -235,11 +235,11 @@ test('Cliont App Playwright test assignment', async ({page})=>
     const orderDetails = await ordernNum.textContent();
     expect(orderID.includes(orderDetails)).toBeTruthy();
     const emailDetails = await details.first().textContent();
-    expect(emailDetails.includes("junny@gmail.com")).toBeTruthy();
+    expect(emailDetails.includes(registrationEmail)).toBeTruthy();
     const countryDetails = await details.nth(1).textContent();
     expect(countryDetails.includes("Japan")).toBeTruthy();
     const emailDetails2 = await details.nth(2).textContent();
-    expect(emailDetails2.includes("junny@gmail.com")).toBeTruthy();
+    expect(emailDetails2.includes(registrationEmail)).toBeTruthy();
     const countryDetails2 = await details.last().textContent();
     expect(countryDetails2.includes("Japan")).toBeTruthy();
      const prodDetails = await prodName.textContent();

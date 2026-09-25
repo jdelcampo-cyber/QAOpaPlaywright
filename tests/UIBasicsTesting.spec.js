@@ -48,7 +48,7 @@ test(' @Web UI controls', async ({ page }) => {
     await page.locator('.radiotextsty').last().click();
     await page.locator('#okayBtn').click();
     //confirm radio button selection
-    console.log(page.locator('.radiotextsty').last().isChecked());
+    console.log(await page.locator('.radiotextsty').last().isChecked());
     await expect(page.locator('.radiotextsty').last()).toBeChecked();
     await page.locator('#terms').click();
     await expect(page.locator('#terms')).toBeChecked();
@@ -75,6 +75,7 @@ test('Child window handler', async ({ browser }) => {
         //opening new page in new tab
         documentLink.click(),
     ]) //new page will be opened
+    await newPage.waitForLoadState('domcontentloaded');
     const text = await newPage.locator('.red').textContent(); //get the value displayed
     //getting the email from the new page
     const arrayText = text.split("@");

@@ -2,8 +2,9 @@ const { test, expect, request } = require('@playwright/test');
 const { APIUtils } = require('../utils/APIUtyils.js');
 const { ACCESS_DENIED_TITLE, ACCESS_DENIED_MESSAGE } = require('../utils/constants.js');
 
-const loginPayload = { email: "junny@gmail.com", password: "Learn@123" }; //user A
-const bookingPayload = { customerName: "Marky Yap", customerEmail: "generic@gmail.com", customerPhone: "6457477645", eventId: 1, quantity: 1 }
+const loginPayload = { userEmail: "junny@gmail.com", userPassword: "Learn@123" }; //user A
+const bookingPayload = { customerName: "Marky Yap", customerEmail: "generic@gmail.com", customerPhone: "6457477645", eventId: 283, quantity: 1 }
+const userBEmail = `userb${Date.now()}@gmail.com`;
 
 let response;
 
@@ -12,6 +13,7 @@ test.beforeAll(async () => {
     const apiContext = await request.newContext();
     const apiUtils = new APIUtils(apiContext, loginPayload);
     response = await apiUtils.createBooking(bookingPayload);
+    await apiContext.dispose();
 });
 
 test(' @BE Create Booking', async ({ browser, page }) => {
@@ -41,13 +43,15 @@ test(' @BE Create Booking', async ({ browser, page }) => {
     console.log("Booking URL from User A:", bookingUrl);
 
     //UserB troes to use UserA URL
-    const contextB2 = await browser.newContext({ storageState: 'userB.json' });
+    const contextB2 = await browser.newContext();
     const pageB2 = await contextB2.newPage();
     await pageB2.goto('https://eventhub.rahulshettyacademy.com/login');
-    await pageB2.locator('#email').fill('junny@gmail.com');
-    await pageB2.locator('#password').fill('Learn@123');
-    await pageB2.locator('#login-btn').click();
-    await expect(pageB2.locator('#user-email-display')).toContainText('junny@gmail.com');
+    await pageB2.getByRole('link', { name: 'Register' }).click();
+    await pageB2.getByTestId('register-email').fill(userBEmail);
+    await pageB2.getByTestId('register-password').fill('Learn@123');
+    await pageB2.getByRole('textbox', { name: 'Repeat your password' }).fill('Learn@123');
+    await pageB2.getByTestId('register-btn').click();
+    await expect(pageB2.getByTestId('user-email-display')).toContainText(userBEmail);
 
     // Use User A’s booking URL
     await pageB2.goto(bookingUrl);
