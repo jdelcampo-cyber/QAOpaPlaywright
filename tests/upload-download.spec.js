@@ -45,16 +45,18 @@ test('excel test', async () => {
 });
 
 
-test('Upload download excel validation', async ({page})=>
+test('Upload download excel validation', async ({page}, testInfo)=>
 {
     const textSearch = "Mango";
     const updateValue = "350";
-    const filePath = "/Users/jdelcampo/Downloads/download.xlsx";
+    const filePath = testInfo.outputPath('download.xlsx');
     await page.goto("https://rahulshettyacademy.com/upload-download-test/");
     //download  file
-    const downloadFile = page.waitForEvent('download');
-    await page.getByRole("button", {name: 'Download'}).click();
-    await downloadFile;
+    const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        page.getByRole("button", {name: 'Download'}).click()
+    ]);
+    await download.saveAs(filePath);
     //update file
     await writeExcel(textSearch, updateValue, {rowChange:0, colChange:2}, filePath); 
     //upload updated file

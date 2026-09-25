@@ -13,10 +13,10 @@ test(" @Web Popup Validations", async ({ page }) => {
         await expect(page.locator('#displayed-text')).toBeHidden();
 
         //broswer modals
+        page.once('dialog', dialog => dialog.accept());
         await page.locator('#confirmbtn').click();
-        await page.on('dialog', dialog => dialog.accept());
+        page.once('dialog', dialog => dialog.dismiss());
         await page.locator('#confirmbtn').click();
-        await page.on('dialog', dialog => dialog.dismiss());
 
         //hover
         await page.locator('#mousehover').hover();
