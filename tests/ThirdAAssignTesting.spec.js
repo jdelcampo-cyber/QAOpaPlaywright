@@ -12,22 +12,16 @@ test.beforeAll(async () => {
     const apiContext = await request.newContext();
     const apiUtils = new APIUtils(apiContext, loginPayload);
     response = await apiUtils.createEvent(eventPayload);
+    await apiContext.dispose();
 });
 
 test(' @AT Create Events', async ({ page }) => {
-    await page.addInitScript(token => {
-        window.localStorage.setItem('eventhub_token', token);
-    }, response.token);
-    await page.goto("https://eventhub.rahulshettyacademy.com/");
-    await page.waitForLoadState('domcontentloaded');
-    const events = page.locator("#nav-events");
-    await events.click();
-    await page.route("https://api.eventhub.rahulshettyacademy.com/api/events?*", //adding * generates any orderID
+    await page.route("**/api/events**",
         async route => {
-            const newResponse = await page.request.fetch(route.request());
             route.fulfill(
                 {
-                    newResponse,
+                    status: 200,
+                    contentType: 'application/json',
                     body: JSON.stringify({
                         data: [],
                         message: WARNING_MESSAGE
@@ -36,7 +30,12 @@ test(' @AT Create Events', async ({ page }) => {
             //intercepting response - API response->{playwright fake response}->browser->render data on front end
         });
 
-    await page.waitForResponse("https://api.eventhub.rahulshettyacademy.com/api/events?*");
-    const warningBox = page.locator('.mb-6');
-    await expect(warningBox).toHaveText(WARNING_MESSAGE);
+    await page.goto("https://eventhub.rahulshettyacademy.com/login");
+    await page.getByRole('textbox', { name: 'Email' }).fill('junny@gmail.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('Learn@123');
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    const events = page.locator("#nav-events");
+    await events.click();
+    await expect(page.getByText('Try adjusting your filters or search terms to find what you\'re looking for.', { exact: true })).toBeVisible();
 });

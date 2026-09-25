@@ -1,3 +1,4 @@
+//Author : Junny
 const { expect } = require('@playwright/test');
 
 class OrderHistoryPage
@@ -14,37 +15,45 @@ class OrderHistoryPage
     
     async viewOrderList(orderID)
     {
-    await this.order.click();
-    //scan order list to get the latest order
-    await this.page.locator("tbody").waitFor();
-    const rows = await this.orderList;
-    for(let i =0; i < await rows.count(); ++i)
-    {
-      const rowOrderId = await rows.nth(i).locator("th").textContent();
-      if(orderID.includes(rowOrderId))
-      {
-        //view order of rhe selected OrderID
-        await rows.nth(i).locator("button").first().click();
-        break;
-      }
-    }
+        await this.order.click();
+        await this.page.locator("tbody").waitFor();
+
+        const rows = this.orderList;
+        const totalRows = await rows.count();
+
+        for (let i = 0; i < totalRows; i++)
+        {
+            const rowOrderId = (await rows.nth(i).locator("th").textContent())?.trim();
+
+            if (rowOrderId && String(orderID).includes(rowOrderId))
+            {
+                await rows.nth(i).locator("button").first().click();
+                return;
+            }
+        }
+
+        throw new Error(`Order ID ${orderID} was not found in the order history list.`);
     }
 
-    async viewOrderDetails(orderID,username,countryName,productName)
+    async viewOrderDetails(orderID, username, countryName, productName)
     {
-    //view order - assertions
-    const orderDetails = await this.ordernNum.textContent();
-    expect(orderID.includes(orderDetails)).toBeTruthy();
-    const emailDetails = await this.details.first().textContent();
-    expect(emailDetails.includes(username)).toBeTruthy();
-    const countryDetails = await this.details.nth(1).textContent();
-    expect(countryDetails.includes(countryName)).toBeTruthy();
-    const emailDetails2 = await this.details.nth(2).textContent();
-    expect(emailDetails2.includes(username)).toBeTruthy();
-    const countryDetails2 = await this.details.last().textContent();
-    expect(countryDetails2.includes(countryName)).toBeTruthy();
-     const prodDetails = await this.prodName.textContent();
-    expect(prodDetails.includes(productName)).toBeTruthy();
+        const orderDetails = (await this.ordernNum.textContent())?.trim();
+        expect(String(orderID)).toContain(orderDetails ?? '');
+
+        const emailDetails = (await this.details.first().textContent())?.trim();
+        expect(emailDetails ?? '').toContain(username);
+
+        const countryDetails = (await this.details.nth(1).textContent())?.trim();
+        expect(countryDetails ?? '').toContain(countryName);
+
+        const emailDetails2 = (await this.details.nth(2).textContent())?.trim();
+        expect(emailDetails2 ?? '').toContain(username);
+
+        const countryDetails2 = (await this.details.last().textContent())?.trim();
+        expect(countryDetails2 ?? '').toContain(countryName);
+
+        const prodDetails = (await this.prodName.textContent())?.trim();
+        expect(prodDetails ?? '').toContain(productName);
     }
 }
 module.exports = {OrderHistoryPage};

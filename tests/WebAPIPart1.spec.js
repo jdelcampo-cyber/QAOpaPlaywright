@@ -1,71 +1,89 @@
-const {test,expect,request} = require('@playwright/test');
-const {APIUtils} = require('../utils/APIUtyils');
-const newloginPayload = {userEmail:"junny@gmal.com",userPassword:"Learn@123"};
-const orderPayload = {orders:[{country:"New Zealand",productOrderedId:"6a9f86ebe7cd69710fc7e566"}]};
-let response;
+//Author : Junny
+const {test, expect} = require('@playwright/test');
+const {newcustomtest} = require('../utils/testbase');
+const {POManager} = require('../pageobjects/POManager');
+const dataSet = JSON.parse(JSON.stringify(require("../utils/placeorderTestData.json")));  //convert Json -> string -> js object
 
-// tests to be performed before all the tests in this file
-test.beforeAll(async ()=> 
-{
-    const apiContext = await request.newContext(); 
-    const apiUtils = new APIUtils(apiContext,newloginPayload);
-    response = await apiUtils.createOrder(orderPayload);
+for(const data of dataSet)
+{ 
+  test(`  @Web Cliont App Playwright test assignment ${data.productName}`, async ({page}) =>
+  {    
+      const poManager = new POManager(page);
+      const loginPage = poManager.getLoginPage();
+      const dashboardPage = poManager.getDashboardPage();
+      const cartPage = poManager.getCartPage();
+      const orderReviewPage = poManager.getOrderReviewPage();
+      const orderHistoryPage = poManager.getOrderHistoryPage();
+
+      const toasterMsg = page.locator('#toast-container');
+
+      await loginPage.navigatePage();
+      await loginPage.validLogin(data.username, data.password);
+      const msg5 = await toasterMsg.textContent();
+      console.log('Toaster message:', msg5);
+
+      await dashboardPage.searchProductAddCart(data.productName);
+      await dashboardPage.navigateCart();
+      await expect(toasterMsg).toContainText('Product');
+      const msg6 = await toasterMsg.textContent();
+      console.log('Toaster message:', msg6);
+
+      await cartPage.verifyProductVisible(data.productName);
+      await cartPage.navigateCheckout();
+
+      await orderReviewPage.displayDetails();
+      await orderReviewPage.personalInfo(data.cardNumber, data.monthdate, data.daydate, data.cardexpiry, data.cardHolder, data.couponcode);
+      await orderReviewPage.shippingInfo(data.username, 'ja', 'Japan');
+      await orderReviewPage.placeOrder();
+      await expect(toasterMsg).toContainText('Order');
+      const msg8 = await toasterMsg.textContent();
+      console.log('Toaster message:', msg8);
+      const orderID = await orderReviewPage.getOrderID();
+      console.log(orderID);
+
+      await orderHistoryPage.viewOrderList(orderID);
+      await orderHistoryPage.viewOrderDetails(orderID, data.username, 'Japan', data.productName);
+  });
+}
+
+newcustomtest(`Cliont App Playwright test assignment`, async ({page, testDateOrder}) =>
+{    
+    const poManager = new POManager(page);
+    const loginPage = poManager.getLoginPage();
+    const dashboardPage = poManager.getDashboardPage();
+    const cartPage = poManager.getCartPage();
+    const orderReviewPage = poManager.getOrderReviewPage();
+    const orderHistoryPage = poManager.getOrderHistoryPage();
+
+    const toasterMsg = page.locator('#toast-container');
+
+    await loginPage.navigatePage();
+    await loginPage.validLogin(testDateOrder.username, testDateOrder.password);
+    const msg5 = await toasterMsg.textContent();
+    console.log('Toaster message:', msg5);
+
+    await dashboardPage.searchProductAddCart(testDateOrder.productName);
+    await dashboardPage.navigateCart();
+    await expect(toasterMsg).toContainText('Product');
+    const msg6 = await toasterMsg.textContent();
+    console.log('Toaster message:', msg6);
+
+    await cartPage.verifyProductVisible(testDateOrder.productName);
+    await cartPage.navigateCheckout();
+
+    await orderReviewPage.displayDetails();
+    await orderReviewPage.personalInfo(testDateOrder.cardNumber, testDateOrder.monthdate, testDateOrder.daydate, testDateOrder.cardexpiry, testDateOrder.cardHolder, testDateOrder.couponcode);
+    await orderReviewPage.shippingInfo(testDateOrder.username, 'ja', 'Japan');
+    await orderReviewPage.placeOrder();
+    await expect(toasterMsg).toContainText('Order');
+    const msg8 = await toasterMsg.textContent();
+    console.log('Toaster message:', msg8);
+    const orderID = await orderReviewPage.getOrderID();
+    console.log(orderID);
+
+    await orderHistoryPage.viewOrderList(orderID);
+    await orderHistoryPage.viewOrderDetails(orderID, testDateOrder.username, 'Japan', testDateOrder.productName);
 });
 
-//tests to be performed before each test in this file (i.e. test 1, test 2, test3)
-// test.beforeEach(()=>
-// {
-
-// });
-
-
-test(' @API Place order', async ({page})=>
-{   
-    await page.addInitScript(value => 
-    {
-        window.localStorage.setItem('token', value);
-    }, response.token);
-    
-    await page.goto("https://rahulshettyacademy.com/client/");
-
-    //orders list
-    const order = page.locator("button[routerlink*='myorders']");
-    const orderList = page.locator("tbody tr");
-    const ordernNum = page.locator('.col-text');
-    const details = page.locator("div div p.text");
-    const prodName = page.locator('.title');
-    
-    //order list
-    await order.click();
-    //scan order list to get the latest order
-    await page.locator("tbody").waitFor();
-    const rows = await orderList;
-    for(let i =0; i < await rows.count(); ++i)
-    {
-      const rowOrderId = await rows.nth(i).locator("th").textContent();
-      if(response.orderID.includes(rowOrderId))
-      {
-        //view order of rhe selected OrderID
-        await rows.nth(i).locator("button").first().click();
-        break;
-      }
-    }
-
-    //view order - assertions
-    const orderDetails = await ordernNum.textContent();
-    await page.pause();
-    expect(response.orderID.includes(orderDetails)).toBeTruthy();
-    // const emailDetails = await details.first().textContent();
-    // expect(emailDetails.includes(userEmail)).toBeTruthy();
-    const countryDetails = await details.nth(1).textContent();
-    expect(countryDetails.includes("New Zealand")).toBeTruthy();
-    // const emailDetails2 = await details.nth(2).textContent();
-    // expect(emailDetails2.includes(userEmail)).toBeTruthy();
-    const countryDetails2 = await details.last().textContent();
-    expect(countryDetails2.includes("New Zealand")).toBeTruthy();
-     const prodDetails = await prodName.textContent();
-    expect(prodDetails.includes("ZARA COAT 3")).toBeTruthy();
-});
-
-//verify the orders are displayed in the list page
-// Precondition - create order and check order id
+//test files will trigger parallel mode
+//individual tests in a file will trigger in sequence

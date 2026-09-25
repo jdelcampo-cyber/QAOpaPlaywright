@@ -1,8 +1,10 @@
+//Author : Junny
 const {test, expect} = require('@playwright/test');
 
 
-test.skip('Cliont App Playwright test assignment', async ({page})=>
+test('Cliont App Playwright test assignment', async ({page})=>
 {
+  const registrationEmail = `junny${Date.now()}@gmail.com`;
   //js file - login ks
     await page.goto("https://rahulshettyacademy.com/client/#/");
     console.log(await page.title());
@@ -22,8 +24,9 @@ test.skip('Cliont App Playwright test assignment', async ({page})=>
     const loginLink = page.locator('.login-wrapper-footer-text');
     const toasterMsg = page.locator('#toast-container');
     const successMsg = page.locator('.headcolor');
-    const loginBtn = page.locator("[routerlink='/auth']");
     const regBtn = page.locator('#login');
+    const loginEmail = page.locator('#userEmail');
+    const loginPassword = page.locator('#userPassword');
 
     //product list
     const cardTitles = page.locator('.card-body b');
@@ -32,7 +35,7 @@ test.skip('Cliont App Playwright test assignment', async ({page})=>
     const cart = page.locator("[routerlink*='cart']");
 
     //checkout page
-    const userEmail = "junny@gmail.com";
+    const userEmail = registrationEmail;
     const dropdown = page.locator('.ta-results');
     const checkout = page.locator("text = Checkout");
     const cartList = page.locator("div li");
@@ -79,7 +82,7 @@ test.skip('Cliont App Playwright test assignment', async ({page})=>
     await firstName.type("Junny");
     await lastName.type("del Campo");
     await Email.fill("");
-    await Email.fill("junny14@gmail.com");
+    await Email.fill(registrationEmail);
     await Phone.fill("");
     await Phone.type("4567434564");
     await Occupation.selectOption({value : '3: Engineer'});
@@ -124,7 +127,7 @@ test.skip('Cliont App Playwright test assignment', async ({page})=>
 
     //successful registration
     await Email.fill("");
-    await Email.fill("junny144@gmail.com");
+    await Email.fill(registrationEmail);
     await Password.fill("");
     await Password.fill("Learn@123");
     await conFirm.fill("");
@@ -138,13 +141,14 @@ test.skip('Cliont App Playwright test assignment', async ({page})=>
     const msg4 = await toasterMsg.textContent();
     console.log('Toaster message:', msg4);
 
-  //  console.log(await successMsg.textContent());
-    await loginBtn.click();
-
     //login
-    await Email.type("junny@gmail.com");
-    await Password.type("Learn@123");
+    await expect(successMsg).toBeVisible();
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(loginEmail).toBeVisible();
+    await loginEmail.fill(registrationEmail);
+    await loginPassword.fill("Learn@123");
     await regBtn.click();
+    await page.waitForLoadState('networkidle');
 
     await expect(toasterMsg).toContainText("Login");
 
@@ -175,15 +179,13 @@ test.skip('Cliont App Playwright test assignment', async ({page})=>
 
     //cart list
     await cartList.first().waitFor(); //waiting for page load
-    const bool = page.locator("h3:has-text('ZARA COAT 3')").isVisible();
-    expect(bool).toBeTruthy();
+    await expect(page.locator("h3:has-text('ZARA COAT 3')")).toBeVisible();
     await checkout.click();
     
     //checkout page
     const allTypes = await payment.allTextContents()
     console.log(allTypes);
-    const types =  paymentType.isEnabled();
-    expect(types).toBeTruthy();
+    await expect(paymentType).toBeEnabled();
 
     //personal information
     const cardNum = await card.first().allTextContents();

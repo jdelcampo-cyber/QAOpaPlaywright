@@ -41,8 +41,8 @@ async function BookingPage(page) {
   const details = page.locator('.text-gray-800');
   const about = page.locator('.whitespace-pre-wrap');
   const ticketPrice = page.locator('.flex .text-2xl');
-  const addBtn = page.locator('button.w-9').last();
-  const subBtn = page.locator('button.w-9').first();
+  const addBtn = page.getByRole("button", { name: '+' });
+  const subBtn = page.getByRole("button", { name: '−' });
   const ticketCount = page.locator('#ticket-count');
   const total = page.locator('.border-indigo-100');
   const name = page.getByRole('textbox', { name: 'Full Name*' });
@@ -190,7 +190,10 @@ async function BookingPage(page) {
     }
   }
   //go back tp list
-  await page.locator('a:has-text("← Back to My Bookings")').click();
+  await Promise.all([
+    page.waitForLoadState('networkidle'),
+    page.getByTestId('nav-bookings').click()
+  ]);
 
   await expect(page.locator('h1')).toContainText('My Bookings');
   await page.waitForLoadState('networkidle');
