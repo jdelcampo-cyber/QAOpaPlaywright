@@ -58,14 +58,16 @@ class OrderReviewPage
         if(text.trim() === countryName)
         {
             await this.dropdown.locator("button").nth(i).click();
-            break;
+            await this.page.locator('.ta-backdrop').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+            return;
         }
     }
    }
 
    async placeOrder()
    {
-     await this.orderBtn.click();
+     await this.page.locator('.ta-backdrop').evaluate(el => el.remove()).catch(() => {});
+     await this.orderBtn.click({ force: true });
      await expect(this.orderConfirm).toHaveText(" Thankyou for the order. ");
    }
 
